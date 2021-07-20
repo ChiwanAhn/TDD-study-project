@@ -10,11 +10,16 @@ class Portfolio {
   }
 
   evaluate(currency) {
-    let total = this.moneys.reduce(
-      (res, el) => res + this.convert(el, currency),
-      0,
-    );
-    return new Money(total, currency);
+    let failures = [];
+    let total = this.moneys.reduce((res, el) => {
+      const convertedAmount = this.convert(el, currency);
+      if (!convertedAmount) return failures.push(el.currency + "->" + currency);
+      return res + convertedAmount;
+    }, 0);
+    if (failures.length === 0) {
+      return new Money(total, currency);
+    }
+    throw new Error(`Missing exchange rate(s):[${failures.join(",")}]`);
   }
 
   convert(money, currency) {
@@ -26,7 +31,11 @@ class Portfolio {
       return money.amount;
     }
     const key = `${money.currency}->${currency}`;
-    return money.amount * exchangeRates[key];
+    const rate = exchangeRates[key];
+
+    if (!rate) return undefined;
+
+    return money.amount * rate;
   }
 }
 module.exports = Portfolio;
