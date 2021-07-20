@@ -18,11 +18,15 @@ class Portfolio {
   }
 
   convert(money, currency) {
-    const eurToUsd = 1.2;
+    const exchangeRates = {
+      "EUR->USD": 1.2,
+      "USD->KRW": 1100,
+    };
     if (money.currency === currency) {
       return money.amount;
     }
-    return money.amount * eurToUsd;
+    const key = `${money.currency}->${currency}`;
+    return money.amount * exchangeRates[key];
   }
 }
 module.exports = Portfolio;
