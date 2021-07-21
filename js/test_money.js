@@ -67,16 +67,24 @@ class MoneyTest {
       portfolio.evaluate(bank, "Kalganid");
     }, expectedError);
   }
-  testConversion() {
-    const bank = new Bank();
-    bank.addExchangeRate("EUR", "USD", 1.2);
+  testConversionWithDifferentRatesBetweenTwoCurrencies() {
+    this.bank.addExchangeRate("EUR", "KRW", 1300);
     const tenEuros = new Money(10, "EUR");
-    assert.deepStrictEqual(bank.convert(tenEuros, "USD"), new Money(12, "USD"));
+    assert.deepStrictEqual(
+      this.bank.convert(tenEuros, "KRW"),
+      new Money(13000, "KRW"),
+    );
+
+    this.bank.addExchangeRate("EUR", "KRW", 1344);
+    assert.deepStrictEqual(
+      this.bank.convert(tenEuros, "KRW"),
+      new Money(13440, "KRW"),
+    );
   }
   testConversionWithMissingExchangeRate() {
-    const bank = new Bank();
     const tenEuros = new Money(10, "EUR");
     const expectedError = new Error("EUR->Kalganid");
+    const bank = this.bank;
     assert.throws(() => {
       bank.convert(tenEuros, "Kalganid");
     }, expectedError);
